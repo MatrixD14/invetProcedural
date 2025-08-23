@@ -1,0 +1,4 @@
+abstract class atributo{ //[I-S]LN=0;[I-E]
+  public abstract void Used(item obj); //[I-S]LN=1;[I-E]
+  public abstract void NoUsed(item obj); //[I-S]LN=2;[I-E]
+} //[I-S]LN=3;[I-E]
