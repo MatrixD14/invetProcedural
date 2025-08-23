@@ -1,7 +1,7 @@
 public class phisics extends Component {
   private float gravity = 5f;
   private Vector3 velocity;
-  private float collider = 1f;
+  private float ColliderSize = 1f;
   private float eixoX, eixoZ;
 
   void start() {
@@ -11,25 +11,40 @@ public class phisics extends Component {
   void repeat() {
     Vector3 pos = myObject.position;
     float delta = Time.deltatime();
+
     velocity.y = velocity.y + (-gravity * delta);
+    pos.y = pos.y + velocity.y * delta;
 
-    float blockInsite = getBlock(pos.x, pos.z);
-    float blockAltura = getBlock(pos.x + velocity.x * delta, pos.z * velocity.z * delta);
-    float checkAlto = Math.abs(blockAltura - blockInsite);
-    float mult = 5f;
-    //Console.log("abs: "+ checkAlto);
-     if (checkAlto >20f ) mult = 5f;
-     else if (checkAlto > 6f) mult = 2.5f;
-    eixoX = mult;
-    eixoZ = mult;
+    float HeightMax = 1.25f, stepSpeed = 5f;
 
-    float altura = blockInsite + collider;
-    float posmy = pos.y + velocity.y * delta;
-    if (posmy <= altura && velocity.y < 0) {
-      pos.y = Math.lerpInSeconds(pos.y, altura, 4f);
-      velocity.y = 0;
+    float blockInic = getBlock(pos.x, pos.z);
+    float diffX = getBlock(pos.x + velocity.x * delta, pos.z) - blockInic;
+    float diffZ = getBlock(pos.x, pos.z + velocity.z * delta) - blockInic;
+    float HeightDistY = blockInic + ColliderSize;
+    float diffY = HeightDistY - pos.y;
+    float Ybloque = 0;
+
+    int veloX = 1, veloZ = 1;
+    if (diffX > HeightMax || diffX < -HeightMax) {
+      veloX = 0;
+      Ybloque = pos.y;
     } 
-    pos.set(pos.x + velocity.x * delta, pos.y + velocity.y * delta, pos.z + velocity.z * delta);
+    if (diffZ > HeightMax || diffZ < -HeightMax) {
+      veloZ = 0;
+      Ybloque = pos.y;
+    }
+    if (veloZ == 0 || veloX == 0) pos.y = Ybloque;
+    else {
+      if (diffY > 0 && diffY <= HeightMax) {
+        pos.y = Math.min(pos.y + stepSpeed * delta, HeightDistY);
+        velocity.y = 0;
+      } else if (pos.y < HeightDistY) {
+        pos.y = HeightDistY;
+        velocity.y = 0;
+      }
+    }
+    eixoX = veloX;
+    eixoZ = veloZ;
   }
 
   public float moveX() {
