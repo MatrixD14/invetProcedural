@@ -15,26 +15,21 @@ public class phisics extends Component {
     velocity.y = velocity.y + (-gravity * delta);
     pos.y = pos.y + velocity.y * delta;
 
-    float HeightMax = 1.25f, stepSpeed = 5f;
+    float HeightMax = 1f, stepSpeed = 5f;
+    float veloDX = velocity.x * delta, veloDZ = velocity.z * delta;
 
     float blockInic = getBlock(pos.x, pos.z);
-    float diffX = getBlock(pos.x + velocity.x * delta, pos.z) - blockInic;
-    float diffZ = getBlock(pos.x, pos.z + velocity.z * delta) - blockInic;
-    float HeightDistY = blockInic + ColliderSize;
-    float diffY = HeightDistY - pos.y;
-    float Ybloque = 0;
+    float diffX = getBlock(pos.x + veloDX, pos.z) - blockInic;
+    float diffZ = getBlock(pos.x, pos.z + veloDZ) - blockInic;
 
     int veloX = 1, veloZ = 1;
-    if (diffX > HeightMax || diffX < -HeightMax) {
-      veloX = 0;
-      Ybloque = pos.y;
-    } 
-    if (diffZ > HeightMax || diffZ < -HeightMax) {
-      veloZ = 0;
-      Ybloque = pos.y;
-    }
-    if (veloZ == 0 || veloX == 0) pos.y = Ybloque;
-    else {
+    if (Math.abs(diffX) > HeightMax) veloX = 0;
+    if (Math.abs(diffZ) > HeightMax) veloZ = 0;
+
+    float HeightDistY = blockInic + ColliderSize;
+    float diffY = HeightDistY - pos.y;
+
+    if (veloZ != 0 && veloX != 0) {
       if (diffY > 0 && diffY <= HeightMax) {
         pos.y = Math.min(pos.y + stepSpeed * delta, HeightDistY);
         velocity.y = 0;
@@ -45,7 +40,7 @@ public class phisics extends Component {
     }
     eixoX = veloX;
     eixoZ = veloZ;
-  }
+  } 
 
   public float moveX() {
     return eixoX;
