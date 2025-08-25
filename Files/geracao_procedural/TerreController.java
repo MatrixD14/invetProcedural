@@ -10,6 +10,7 @@ public class TerreController extends Component {
   private Vector3 mypos;
   private HashMap<Long, Float> HeightMap = new HashMap<Long, Float>();
   private int[][] block = null;
+  private float[][] heigth = null;
   private malha modela = new malha();
 
   void start() {
@@ -42,23 +43,27 @@ public class TerreController extends Component {
           public void onEngine(Object result) {
             WaterCriate();
             generat();
-            if (Obj != null || Obj.exists()) {
+            if (Obj != null && Obj.exists()) {
               Water gera = Obj.findComponent("Water");
-              gera.WaterGera();
+              if (gera != null) gera.WaterGera();
             }
           }
         });
-  } 
+  }
 
   private void MatrizChunck() {
-    block = new int[tama.width + 1][tama.width + 1];
-    for (int z = 0; z <= tama.width; z++) {
-      for (int x = 0; x <= tama.width; x++) {
-        float y = modela.perlinnoises(tama, myObject, x, z);
-        if (y + mypos.y >= tama.waterlevel - 2 && y + mypos.y <= 2 + tama.waterlevel) block[z][x] = 1;
-        else if (y + mypos.y >= tama.waterlevel - 8 && y + mypos.y <= tama.waterlevel - 2) block[z][x] = 4;
-        else if (y + mypos.y <= tama.waterlevel - 8) block[z][x] = 5;
-        else block[z][x] = 3;
+    int W = tama.width;
+    block = new int[W + 1][W + 1];
+    heigth = new float[W + 1][W + 1];
+    for (int z = 0; z <= W; z++) {
+      for (int x = 0; x <= W; x++) {
+        float yLocal = modela.perlinnoises(tama, myObject, x, z);
+        float yWorld = yLocal + mypos.y;
+        heigth[z][x] = yLocal;
+        if (yWorld >= tama.waterlevel - 2 && yWorld <= 2 + tama.waterlevel) block[z][x] = 0;
+        else if (yWorld >= tama.waterlevel - 8 && yWorld <= tama.waterlevel - 2) block[z][x] = 6;
+        else if (yWorld <= tama.waterlevel - 8) block[z][x] = 7;
+        else block[z][x] = 1;
       }
     }
   }
@@ -67,32 +72,32 @@ public class TerreController extends Component {
     TerrTriangle = new int[tama.width * tama.width * 6];
     for (int z = 0; z <= tama.width; z++) {
       for (int x = 0; x <= tama.width; x++) {
-        float y = modela.perlinnoises(tama, myObject, x, z);
+        int matriz = block[z][x];
+        float y = heigth[z][x];
         long codekey = CodificKey((int) (x + mypos.x), (int) (z + mypos.z));
         HeightMap.put(codekey, y + mypos.y);
-        topFace(x, y, z, block[z][x]);
+
+        topFace(x, y, z, matriz);
         generationlog(x, y, z);
-      }
+      } 
     }
     modela.triangulo(tama.width, TerrTriangle);
     TerrVertex = modela.meshup(false, TerrModelo, tama.TerrMate, TerrTriangle, TerrVertices, TerrNormal, TerrUV);
   }
 
-  private void topFace(float x, float y, float z, int typeblock) {
+  private void topFace(int x, float y, int z, int typeblock) {
     if (typeblock < 0) return;
     TerrVertices.add(new Vector3(x, y, z));
     TerrNormal.add(new Vector3(0, 1, 0));
-    Vector2 uv = mapuv(typeblock);
-    TerrUV.add(new Vector2(uv.x / 2, uv.y / 2));
+    TerrUV.add(mapuv(0, 3));
   }
 
-  private Vector2 mapuv(int type) {
+  private Vector2 mapuv(int x, int y) {
     int t = 4;
     float tilasize = 1f / t;
-    int tx = type % t;
-    int tz = type / t;
-    tz = (int) tilasize - 1 - tz;
-    float u = tx * tilasize, v = tz * tilasize;
+    int tx = x % t;
+    int ty = y / t;
+    float u = tx * tilasize, v = ty * tilasize;
     return new Vector2(u, v);
   }
 
@@ -110,14 +115,14 @@ public class TerreController extends Component {
     int chunkX = (int) myObject.getGlobalPosition().x;
     int chunkZ = (int) myObject.getGlobalPosition().z;
     if (worldx < chunkX || worldx >= chunkX + tama.width || worldx < chunkZ || worldz >= chunkZ + tama.width) return;
-    int space = 4;
+    int space = Random.range(2, 5);
     if (((int) worldx % space != 0) || ((int) worldz % space != 0)) return;
     float addspaw = perlin.noise(worldx + tama.seed, worldz + tama.seed);
     addspaw -= perlin.noise(worldx * 50f + tama.seed, worldz * 50f + tama.seed);
     if (addspaw >= tama.valuelog && y > tama.waterlevel + tama.heightscale) {
       int quemspaw = Random.range(0, tama.trees.size() - 1);
       Vector3 positobj = new Vector3(worldx, y + mypos.y, worldz) - myObject.getGlobalPosition();
-      SpatialObject log = myObject.instantiate(tama.trees.get((int) quemspaw), positobj);
+      SpatialObject log = myObject.instantiate(tama.trees.get(quemspaw), positobj);
       log.setParent(myObject);
     }
   }
