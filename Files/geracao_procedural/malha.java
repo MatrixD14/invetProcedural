@@ -3,8 +3,8 @@ public class malha {
 
   public void triangulo(int value, int[] triang) {
     int tris = 0, verts = 0;
-    for (int z = 0; z < value; z++) {
-      for (int x = 0; x < value; x++) {
+    for (int z = 0; z < value; z ++) {
+      for (int x = 0; x < value; x ++) {
         triang[tris + 0] = verts + 0;
         triang[tris + 1] = verts + value + 1;
         triang[tris + 2] = verts + 1;
@@ -13,7 +13,7 @@ public class malha {
         triang[tris + 5] = verts + value + 2;
         verts++;
         tris += 6;
-      }
+      } 
       verts++;
     }
   }
@@ -25,13 +25,13 @@ public class malha {
     vertexs.setUVs(uv);
     vertexs.setTriangles(trianglo);
     vertexs.apply();
-    
-    model.setMaterialFile(mateFile);   
-    model.setVertex(vertexs);    
-   if (onoff) model.material.setReceiveLight(false);
-    model.setCastShadowEnabled(false);   
+
+    model.setMaterialFile(mateFile);
+    model.setVertex(vertexs);
+    if (onoff) model.material.setReceiveLight(false);
+    model.setCastShadowEnabled(false);
     return vertexs;
-  } 
+  }
 
   public float perlinnoises(chunkgen tama, SpatialObject myObj, float x, float z) {
     float calcu = 0;
