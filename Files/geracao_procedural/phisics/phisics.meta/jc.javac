@@ -22,12 +22,11 @@ public class phisics extends Component {
 
     float HeightMax = 1.5f;
     float veloDX = velocity.x * delta, veloDZ = velocity.z * delta;
-    
-    getUpTerreno(pos.x,pos.z);
-    float blockInic = getFormBlock(pos.x, pos.z);
-    float blockZ = getFormBlock(pos.x, pos.z + veloDZ);
-    float blockX = getFormBlock(pos.x + veloDX, pos.z);
-    
+
+    float blockInic = safeFormBlock(pos.x, pos.z);
+    float blockZ = safeFormBlock(pos.x, pos.z + veloDZ);
+    float blockX = safeFormBlock(pos.x + veloDX, pos.z);
+
     eixoX = Math.abs(blockZ - blockInic) > HeightMax ? 0 : 1f;
     eixoZ = Math.abs(blockX - blockInic) > HeightMax ? 0 : 1f;
 
@@ -54,25 +53,28 @@ public class phisics extends Component {
     return eixoZ;
   }
 
-  public float getFormBlock(float x, float z) {
-    return (correntChunck != null) ? correntChunck.getHeight(x, z) : 0f;
+  public float safeFormBlock(float x, float z) {
+    TerreController terren = getCachTerreno(x, z);
+    return (terren != null) ? terren.getHeight(x, z) : 0f;
   }
 
-  public void getUpTerreno(float x, float z) {
+  public TerreController getCachTerreno(float x, float z) {
     chunkgen chunck = (chunkgen) myObject.findComponent("chunkgen");
-    if (chunck == null) {
-      correntChunck = null;
-      return;
-    }
+    if (chunck == null) return null;
+
     int coodX = (int) Math.floor(x / chunck.width);
     int coodZ = (int) Math.floor(z / chunck.width);
-    if (coodX != correntX || coodZ != correntZ) {
-      correntX = coodX;
-      correntZ = coodZ;
+    if (correntChunck == null || coodX != correntX || coodZ != correntZ) {
+
       long codekey = chunck.CodificKey(coodX, coodZ);
       SpatialObject ObjChunck = chunck.chunck.get(codekey);
-      if (ObjChunck != null && ObjChunck.exists()) correntChunck = (TerreController) ObjChunck.findComponent("TerreController");
-      else correntChunck = null;
-    } 
-  }
+      if (ObjChunck == null || !ObjChunck.exists()) correntChunck = null;
+      else {
+        correntChunck = (TerreController) ObjChunck.findComponent("TerreController");
+        correntX = coodX;
+        correntZ = coodZ;
+      }
+    }
+    return correntChunck;
+  } 
 }
