@@ -4,7 +4,12 @@ public class phisics extends Component {
   private float ColliderSize = 1f;
   private float eixoX, eixoZ;
 
+  private TerreController correntChunck = null;
+  private int correntX = Integer.MIN_VALUE;
+  private int correntZ = Integer.MIN_VALUE;
+
   void start() {
+    ;
     velocity = new Vector3();
   }
 
@@ -17,26 +22,27 @@ public class phisics extends Component {
 
     float HeightMax = 1.5f;
     float veloDX = velocity.x * delta, veloDZ = velocity.z * delta;
-
-    float blockInic = getBlock(pos.x, pos.z);
-    float blockX = getBlock(pos.x, pos.z + veloDZ);
-    float blockZ = getBlock(pos.x + veloDX, pos.z);
+    
+    getUpTerreno(pos.x,pos.z);
+    float blockInic = getFormBlock(pos.x, pos.z);
+    float blockZ = getFormBlock(pos.x, pos.z + veloDZ);
+    float blockX = getFormBlock(pos.x + veloDX, pos.z);
     
     eixoX = Math.abs(blockZ - blockInic) > HeightMax ? 0 : 1f;
     eixoZ = Math.abs(blockX - blockInic) > HeightMax ? 0 : 1f;
-    
+
     float HeightDistY = blockInic + ColliderSize;
     float diffY = HeightDistY - pos.y;
 
     if (eixoX != 0 && eixoZ != 0) {
+      float stepSpeed = 5f;
       if (diffY > 0 && diffY <= HeightMax) {
-        float stepSpeed = 5f;
         pos.y = Math.min(pos.y + stepSpeed * delta, HeightDistY);
         velocity.y = 0;
       } else if (pos.y < HeightDistY) {
         pos.y = HeightDistY;
         velocity.y = 0;
-      } 
+      }
     }
   }
 
@@ -48,19 +54,25 @@ public class phisics extends Component {
     return eixoZ;
   }
 
-  public float getBlock(float x, float z) {
-    TerreController terreno = getTerreno(x, z);
-    return (terreno != null) ? terreno.getHeight(x, z) : 0f;
+  public float getFormBlock(float x, float z) {
+    return (correntChunck != null) ? correntChunck.getHeight(x, z) : 0f;
   }
 
-  public TerreController getTerreno(float x, float z) {
+  public void getUpTerreno(float x, float z) {
     chunkgen chunck = (chunkgen) myObject.findComponent("chunkgen");
-    if (chunck == null) return null;
+    if (chunck == null) {
+      correntChunck = null;
+      return;
+    }
     int coodX = (int) Math.floor(x / chunck.width);
     int coodZ = (int) Math.floor(z / chunck.width);
-    long codekey = chunck.CodificKey(coodX, coodZ);
-    SpatialObject ObjChunck = chunck.chunck.get(codekey);
-    if (ObjChunck == null || !ObjChunck.exists()) return null;
-    return (TerreController) ObjChunck.findComponent("TerreController");
+    if (coodX != correntX || coodZ != correntZ) {
+      correntX = coodX;
+      correntZ = coodZ;
+      long codekey = chunck.CodificKey(coodX, coodZ);
+      SpatialObject ObjChunck = chunck.chunck.get(codekey);
+      if (ObjChunck != null && ObjChunck.exists()) correntChunck = (TerreController) ObjChunck.findComponent("TerreController");
+      else correntChunck = null;
+    } 
   }
 }
