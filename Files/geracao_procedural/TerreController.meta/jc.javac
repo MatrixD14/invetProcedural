@@ -61,10 +61,10 @@ public class TerreController extends Component {
         float yWorld = yLocal + mypos.y;
         heigth[z][x] = yLocal;
         if (yWorld >= tama.waterlevel - 2 && yWorld <= 2 + tama.waterlevel) block[z][x] = 0;
-        else if (yWorld >= tama.waterlevel - 8 && yWorld <= tama.waterlevel - 2) block[z][x] = 6;
-        else if (yWorld <= tama.waterlevel - 8) block[z][x] = 7;
+        else if (yWorld >= tama.waterlevel - 8 && yWorld <= tama.waterlevel - 2) block[z][x] = 12;
+        else if (yWorld <= tama.waterlevel - 8) block[z][x] = 10;
         else block[z][x] = 1;
-      }
+      } 
     }
   }
 
@@ -79,7 +79,7 @@ public class TerreController extends Component {
 
         topFace(x, y, z, matriz);
         generationlog(x, y, z);
-      } 
+      }
     }
     modela.triangulo(tama.width, TerrTriangle);
     TerrVertex = modela.meshup(false, TerrModelo, tama.TerrMate, TerrTriangle, TerrVertices, TerrNormal, TerrUV);
@@ -89,15 +89,15 @@ public class TerreController extends Component {
     if (typeblock < 0) return;
     TerrVertices.add(new Vector3(x, y, z));
     TerrNormal.add(new Vector3(0, 1, 0));
-    TerrUV.add(mapuv(0, 3));
+    TerrUV.add(mapuv(typeblock, 0, 0));
   }
 
-  private Vector2 mapuv(int x, int y) {
+  private Vector2 mapuv(int type, int x, int y) {
     int t = 4;
     float tilasize = 1f / t;
-    int tx = x % t;
-    int ty = y / t;
-    float u = tx * tilasize, v = ty * tilasize;
+    int tx = type % t;
+    int ty = type / t;
+    float u = tx * tilasize + x * tilasize, v = ty * tilasize + y * tilasize;
     return new Vector2(u, v);
   }
 
@@ -115,7 +115,7 @@ public class TerreController extends Component {
     int chunkX = (int) myObject.getGlobalPosition().x;
     int chunkZ = (int) myObject.getGlobalPosition().z;
     if (worldx < chunkX || worldx >= chunkX + tama.width || worldx < chunkZ || worldz >= chunkZ + tama.width) return;
-    int space = Random.range(2, 5);
+    int space = Random.range(3, 5);
     if (((int) worldx % space != 0) || ((int) worldz % space != 0)) return;
     float addspaw = perlin.noise(worldx + tama.seed, worldz + tama.seed);
     addspaw -= perlin.noise(worldx * 50f + tama.seed, worldz * 50f + tama.seed);
