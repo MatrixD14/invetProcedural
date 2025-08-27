@@ -2,9 +2,9 @@ public class TerreController extends Component {
   private SpatialObject armLog, Obj, voi;
   private ModelRenderer TerrModelo;
   private Vertex TerrVertex;
-  private List<Vector3> TerrVertices = new LinkedList<Vector3>(), TerrNormal = new LinkedList<Vector3>();
-  private List<Vector2> TerrUV = new LinkedList<Vector2>();
-  private int[] TerrTriangle;
+  private Vector3Buffer TerrVertices = null, TerrNormal = null;
+  private IntBuffer TerrTriangles = null;
+  private Vector2Buffer TerrUVs = null;
   private PerlinNoise perlin = new PerlinNoise(100);
   private chunkgen tama;
   private Vector3 mypos;
@@ -33,10 +33,10 @@ public class TerreController extends Component {
             TerrVertex = new Vertex();
             myposblock();
             MatrizChunck();
+            createBuffer();
+
             HeightMap.clear();
-            TerrVertices.clear();
-            TerrNormal.clear();
-            TerrUV.clear();
+            // TerrUV.clear();
             return null;
           }
 
@@ -46,7 +46,7 @@ public class TerreController extends Component {
             if (Obj != null && Obj.exists()) {
               Water gera = Obj.findComponent("Water");
               if (gera != null) gera.WaterGera();
-            }
+            } 
           }
         });
   }
@@ -61,17 +61,29 @@ public class TerreController extends Component {
         float yWorld = yLocal + mypos.y;
         heigth[z][x] = yLocal;
         if (yWorld >= tama.waterlevel - 2 && yWorld <= 2 + tama.waterlevel) block[z][x] = 0;
-        else if (yWorld >= tama.waterlevel - 8 && yWorld <= tama.waterlevel - 2) block[z][x] = 12;
-        else if (yWorld <= tama.waterlevel - 8) block[z][x] = 10;
+        else if (yWorld >= tama.waterlevel - 15 && yWorld <= tama.waterlevel - 2) block[z][x] = 12;
+        else if (yWorld <= tama.waterlevel - 15) block[z][x] = 7;
         else block[z][x] = 1;
-      } 
+      }
     }
   }
 
+  private void createBuffer() {
+    chunkSimul data = new chunkSimul();
+    data.generat(tama.width, block, heigth, modela);
+    TerrVertices = BufferUtils.createVector3Buffer(data.VertecesCount);
+    TerrNormal = BufferUtils.createVector3Buffer(data.NormalCount);
+    TerrTriangles = BufferUtils.createIntBuffer(data.TrianCount);
+    TerrUVs = BufferUtils.createVector2Buffer(data.UvMapCount);
+    TerrVertices.setVboEnabled(true);
+    TerrNormal.setVboEnabled(true);
+    TerrUVs.setVboEnabled(true);
+  }
+
   private void generat() {
-    TerrTriangle = new int[tama.width * tama.width * 6];
-    for (int z = 0; z <= tama.width; z++) {
-      for (int x = 0; x <= tama.width; x++) {
+    int W = tama.width;
+    for (int z = 0; z <= W; z++) {
+      for (int x = 0; x <= W; x++) {
         int matriz = block[z][x];
         float y = heigth[z][x];
         long codekey = CodificKey((int) (x + mypos.x), (int) (z + mypos.z));
@@ -81,15 +93,18 @@ public class TerreController extends Component {
         generationlog(x, y, z);
       }
     }
-    modela.triangulo(tama.width, TerrTriangle);
-    TerrVertex = modela.meshup(false, TerrModelo, tama.TerrMate, TerrTriangle, TerrVertices, TerrNormal, TerrUV);
+    modela.trianguloN(W, TerrTriangles);
+    int[] TrianConvert = new int[TerrTriangles.position()];
+    TerrTriangles.rewind();
+    TerrTriangles.get(TrianConvert);
+    TerrVertex = modela.meshupN(false, TerrModelo, tama.TerrMate, TrianConvert, TerrVertices, TerrNormal, TerrUVs);
   }
 
   private void topFace(int x, float y, int z, int typeblock) {
     if (typeblock < 0) return;
-    TerrVertices.add(new Vector3(x, y, z));
-    TerrNormal.add(new Vector3(0, 1, 0));
-    TerrUV.add(mapuv(typeblock, 0, 0));
+    TerrVertices.put(x, y, z);
+    TerrNormal.put(0, 1, 0);
+    TerrUVs.put(mapuv(typeblock, 0, 0));
   }
 
   private Vector2 mapuv(int type, int x, int y) {
