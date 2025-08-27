@@ -12,7 +12,7 @@ public class chunkgen extends Component {
   }
 
   @Hide public float waterlevel = .5f;
-  @Hide public int chunks = 2, width = 16, seed;
+  @Hide public int chunks = 4, width = 16, seed;
   public float scale, heightscale, valuelog;
   public MaterialFile TerrMate, WaterMate;
   @Hide public chunkgen.object object;
