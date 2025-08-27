@@ -12,10 +12,6 @@ public class Water extends Component {
     tama = WorldController.findObject("player").findComponent("chunkgen");
     WaterModelo = myObject.findComponent("modelrenderer");
     WaterVertex = new Vertex();
-   // if (myObject.exists()) return;
-    // WaterVertices.clear();
-    // WaterNormal.clear();
-    //WaterUV.clear();
   }
 
   public void WaterGera() {
@@ -38,11 +34,13 @@ public class Water extends Component {
 
   public void createBuffer() {
     chunkSimul data = new chunkSimul();
+    boolean offon = false;
     data.generatWater(4, modela);
     WaterVertices = BufferUtils.createVector3Buffer(data.VertecesWaterCount);
     WaterNormal = BufferUtils.createVector3Buffer(data.NormalWaterCount);
     WaterTriangle = BufferUtils.createIntBuffer(data.TrianWaterCount);
     WaterUV = BufferUtils.createVector2Buffer(data.UvMapWaterCount);
+    if(!offon)return;
     WaterVertices.setVboEnabled(true);
     WaterNormal.setVboEnabled(true);
     WaterUV.setVboEnabled(true);
