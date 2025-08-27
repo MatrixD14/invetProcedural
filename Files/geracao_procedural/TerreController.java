@@ -9,8 +9,8 @@ public class TerreController extends Component {
   private chunkgen tama;
   private Vector3 mypos;
   private HashMap<Long, Float> HeightMap = new HashMap<Long, Float>();
-  private int[][] block = null;
-  private float[][] heigth = null;
+  private OH2LevelIntArray block=null;
+  private OH2LevelFloatArray heigth = null;
   private malha modela = new malha();
 
   void start() {
@@ -34,9 +34,7 @@ public class TerreController extends Component {
             myposblock();
             MatrizChunck();
             createBuffer();
-
             HeightMap.clear();
-            // TerrUV.clear();
             return null;
           }
 
@@ -53,28 +51,30 @@ public class TerreController extends Component {
 
   private void MatrizChunck() {
     int W = tama.width;
-    block = new int[W + 1][W + 1];
-    heigth = new float[W + 1][W + 1];
+    block = new OH2LevelIntArray(W + 1, W + 1);
+    heigth = new OH2LevelFloatArray(W + 1,W + 1);
     for (int z = 0; z <= W; z++) {
       for (int x = 0; x <= W; x++) {
         float yLocal = modela.perlinnoises(tama, myObject, x, z);
         float yWorld = yLocal + mypos.y;
-        heigth[z][x] = yLocal;
-        if (yWorld >= tama.waterlevel - 2 && yWorld <= 2 + tama.waterlevel) block[z][x] = 0;
-        else if (yWorld >= tama.waterlevel - 15 && yWorld <= tama.waterlevel - 2) block[z][x] = 12;
-        else if (yWorld <= tama.waterlevel - 15) block[z][x] = 7;
-        else block[z][x] = 1;
+        heigth.set(z,x,yLocal);
+        if (yWorld >= tama.waterlevel - 2 && yWorld <= 2 + tama.waterlevel) block.set(z,x, 0);
+        else if (yWorld >= tama.waterlevel - 15 && yWorld <= tama.waterlevel - 2) block.set(z,x, 12);
+        else if (yWorld <= tama.waterlevel - 15) block.set(z,x,7);
+        else block.set(z, x, 1);
       }
     }
   }
 
   private void createBuffer() {
     chunkSimul data = new chunkSimul();
+    boolean offon = true;
     data.generat(tama.width, block, heigth, modela);
     TerrVertices = BufferUtils.createVector3Buffer(data.VertecesCount);
     TerrNormal = BufferUtils.createVector3Buffer(data.NormalCount);
     TerrTriangles = BufferUtils.createIntBuffer(data.TrianCount);
     TerrUVs = BufferUtils.createVector2Buffer(data.UvMapCount);
+    if(!offon)return;
     TerrVertices.setVboEnabled(true);
     TerrNormal.setVboEnabled(true);
     TerrUVs.setVboEnabled(true);
@@ -84,8 +84,8 @@ public class TerreController extends Component {
     int W = tama.width;
     for (int z = 0; z <= W; z++) {
       for (int x = 0; x <= W; x++) {
-        int matriz = block[z][x];
-        float y = heigth[z][x];
+        int matriz = block.get(z,x);
+        float y = heigth.get(z,x);
         long codekey = CodificKey((int) (x + mypos.x), (int) (z + mypos.z));
         HeightMap.put(codekey, y + mypos.y);
 
