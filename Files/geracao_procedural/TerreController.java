@@ -1,11 +1,9 @@
 public class TerreController extends Component {
-  private SpatialObject armLog, voi;
   private ModelRenderer TerrModelo;
   private Vertex TerrVertex;
   private Vector3Buffer TerrVertices = null, TerrNormal = null;
   private IntBuffer TerrTriangles = null;
   private Vector2Buffer TerrUVs = null;
-  private PerlinNoise perlin = new PerlinNoise(100);
   private chunkgen tama;
   private Vector3 mypos;
   private HashMap<Long, Float> HeightMap = new HashMap<Long, Float>();
@@ -16,7 +14,6 @@ public class TerreController extends Component {
   void start() {
     if (!myObject.exists()) return;
     tama = WorldController.findObject("player").findComponent("chunkgen");
-    armLog = WorldController.findObject("log");
     TerrModelo = myObject.findComponent("modelrenderer");
 
     reload();
