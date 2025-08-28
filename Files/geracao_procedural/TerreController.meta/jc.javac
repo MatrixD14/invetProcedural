@@ -1,5 +1,5 @@
 public class TerreController extends Component {
-  private SpatialObject armLog, Obj, voi;
+  private SpatialObject armLog, voi;
   private ModelRenderer TerrModelo;
   private Vertex TerrVertex;
   private Vector3Buffer TerrVertices = null, TerrNormal = null;
@@ -9,7 +9,7 @@ public class TerreController extends Component {
   private chunkgen tama;
   private Vector3 mypos;
   private HashMap<Long, Float> HeightMap = new HashMap<Long, Float>();
-  private OH2LevelIntArray block=null;
+  private OH2LevelIntArray block = null;
   private OH2LevelFloatArray heigth = null;
   private malha modela = new malha();
 
@@ -39,12 +39,7 @@ public class TerreController extends Component {
           }
 
           public void onEngine(Object result) {
-            WaterCriate();
             generat();
-            if (Obj != null && Obj.exists()) {
-              Water gera = Obj.findComponent("Water");
-              if (gera != null) gera.WaterGera();
-            } 
           }
         });
   }
@@ -52,15 +47,15 @@ public class TerreController extends Component {
   private void MatrizChunck() {
     int W = tama.width;
     block = new OH2LevelIntArray(W + 1, W + 1);
-    heigth = new OH2LevelFloatArray(W + 1,W + 1);
+    heigth = new OH2LevelFloatArray(W + 1, W + 1);
     for (int z = 0; z <= W; z++) {
       for (int x = 0; x <= W; x++) {
         float yLocal = modela.perlinnoises(tama, myObject, x, z);
         float yWorld = yLocal + mypos.y;
-        heigth.set(z,x,yLocal);
-        if (yWorld >= tama.waterlevel - 2 && yWorld <= 2 + tama.waterlevel) block.set(z,x, 0);
-        else if (yWorld >= tama.waterlevel - 15 && yWorld <= tama.waterlevel - 2) block.set(z,x, 12);
-        else if (yWorld <= tama.waterlevel - 15) block.set(z,x,7);
+        heigth.set(z, x, yLocal);
+        if (yWorld >= tama.waterlevel - 2 && yWorld <= 2 + tama.waterlevel) block.set(z, x, 0);
+        else if (yWorld >= tama.waterlevel - 15 && yWorld <= tama.waterlevel - 2) block.set(z, x, 12);
+        else if (yWorld <= tama.waterlevel - 15) block.set(z, x, 7);
         else block.set(z, x, 1);
       }
     }
@@ -74,7 +69,7 @@ public class TerreController extends Component {
     TerrNormal = BufferUtils.createVector3Buffer(data.NormalCount);
     TerrTriangles = BufferUtils.createIntBuffer(data.TrianCount);
     TerrUVs = BufferUtils.createVector2Buffer(data.UvMapCount);
-    if(!offon)return;
+    if (!offon) return;
     TerrVertices.setVboEnabled(true);
     TerrNormal.setVboEnabled(true);
     TerrUVs.setVboEnabled(true);
@@ -82,17 +77,20 @@ public class TerreController extends Component {
 
   private void generat() {
     int W = tama.width;
+    int para = 0;
     for (int z = 0; z <= W; z++) {
       for (int x = 0; x <= W; x++) {
-        int matriz = block.get(z,x);
-        float y = heigth.get(z,x);
+        int matriz = block.get(z, x);
+        float y = heigth.get(z, x);
         long codekey = CodificKey((int) (x + mypos.x), (int) (z + mypos.z));
         HeightMap.put(codekey, y + mypos.y);
-
         topFace(x, y, z, matriz);
         generationlog(x, y, z);
-      }
+        if (matriz != 1) para =1;
+      } 
     }
+    if (para == 1) WaterCriate();
+
     modela.trianguloN(W, TerrTriangles);
     int[] TrianConvert = new int[TerrTriangles.position()];
     TerrTriangles.rewind();
@@ -117,11 +115,14 @@ public class TerreController extends Component {
   }
 
   public void WaterCriate() {
-    Obj = new SpatialObject("Water");
+    SpatialObject Obj = new SpatialObject("Water");
     Obj.setParent(myObject);
     Obj.setStatic(true);
     Obj.addComponent(new ModelRenderer());
     Obj.addComponent(new Water());
+    Water gera = null;
+    if (Obj.findComponent("water") != null) gera = Obj.findComponent("Water");
+    if (gera != null) gera.WaterGera();
   }
 
   private void generationlog(float x, float y, float z) {
