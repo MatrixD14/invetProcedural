@@ -13,7 +13,7 @@ public class malha {
     data.NormalWaterCount += 1;
     data.TrianWaterCount += 6;
     data.UvMapWaterCount += 1;
-  } 
+  }
 
   public void trianguloN(int value, IntBuffer triang) {
     int verts = 0;
@@ -44,6 +44,24 @@ public class malha {
     if (onoff) model.material.setReceiveLight(false);
     model.setCastShadowEnabled(false);
     return vertexs;
+  }
+
+  public void generationlog(chunkgen tama, Vector3 mypos, SpatialObject obj, float x, float y, float z) {
+    float worldx = x + mypos.x;
+    float worldz = z + mypos.z;
+    int chunkX = (int) obj.getGlobalPosition().x;
+    int chunkZ = (int) obj.getGlobalPosition().z;
+    if (worldx < chunkX || worldx >= chunkX + tama.width || worldx < chunkZ || worldz >= chunkZ + tama.width) return;
+    int space = Random.range(3, 5);
+    if (((int) worldx % space != 0) || ((int) worldz % space != 0)) return;
+    float addspaw = perlin.noise(worldx + tama.seed, worldz + tama.seed);
+    addspaw -= perlin.noise(worldx * 50f + tama.seed, worldz * 50f + tama.seed);
+    if (addspaw >= tama.valuelog && y > tama.waterlevel + tama.heightscale) {
+      int quemspaw = Random.range(0, tama.trees.size() - 1);
+      Vector3 positobj = new Vector3(worldx, y + mypos.y, worldz) - obj.getGlobalPosition();
+      SpatialObject log = obj.instantiate(tama.trees.get(quemspaw), positobj);
+      log.setParent(obj);
+    } 
   }
 
   public float perlinnoises(chunkgen tama, SpatialObject myObj, float x, float z) {
