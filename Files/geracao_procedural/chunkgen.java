@@ -55,12 +55,12 @@ public class chunkgen extends Component {
         if (chunck.containsKey(poskey)) continue;
         process.add(poskey);
       }
-    }
+    } 
   }
 
   private void processaChuck(int quant) {
     if (process.isEmpty()) return;
-    for (int i = 0; i < quant; i++) {
+    for (int i = quant; i >0; i--) {
       long poss = process.remove();
       int px = (int) DescodificKeyX(poss);
       int pz = (int) DescodificKeyZ(poss);
@@ -69,7 +69,7 @@ public class chunkgen extends Component {
       SpatialObject TerrObj = object.TerrCriate(px * width, pz * width);
       if (TerrObj != null && TerrObj.exists()) chunck.put(poskey, TerrObj);
     }
-  } 
+  }
 
   private void removeChunck() {
     Iterator<Map.Entry<Long, SpatialObject>> item = chunck.entrySet().iterator();
