@@ -17,14 +17,13 @@ public class Water extends Component {
   public void WaterGera() {
     start();
     createBuffer();
-    for (int z = 0; z <= 4; z++) {
-      for (int x = 0; x <= 4; x++) {
-        WaterVertices.put(x * 4, tama.waterlevel, z * 4);
-        WaterNormal.put(0, 1, 0);
-        WaterUV.put(new Vector2(x, z));
-      }
-    }
-    modela.trianguloN(4, WaterTriangle);
+    int mult = 1 * 16;
+    geraVerteces(mult, mult);
+    geraVerteces(0, mult);
+    geraVerteces(mult, 0);
+    geraVerteces(0, 0);
+    
+    modela.trianguloN(1, WaterTriangle);
     int[] WaterTriangleConvert = new int[WaterTriangle.position()];
     WaterTriangle.rewind();
     WaterTriangle.get(WaterTriangleConvert);
@@ -32,17 +31,23 @@ public class Water extends Component {
     myObject.removeComponent(new Water());
   }
 
+  private void geraVerteces(int x, int z) {
+    WaterVertices.put(x, tama.waterlevel, z);
+    WaterNormal.put(0, 1, 0);
+    WaterUV.put(new Vector2(x, z));
+  }
+
   public void createBuffer() {
     chunkSimul data = new chunkSimul();
     boolean offon = false;
-    data.generatWater(4, modela);
+    data.generatWater(1, modela);
     WaterVertices = BufferUtils.createVector3Buffer(data.VertecesWaterCount);
     WaterNormal = BufferUtils.createVector3Buffer(data.NormalWaterCount);
     WaterTriangle = BufferUtils.createIntBuffer(data.TrianWaterCount);
     WaterUV = BufferUtils.createVector2Buffer(data.UvMapWaterCount);
-    if(!offon)return;
+    if (!offon) return;
     WaterVertices.setVboEnabled(true);
     WaterNormal.setVboEnabled(true);
     WaterUV.setVboEnabled(true);
-  } 
+  }
 }
