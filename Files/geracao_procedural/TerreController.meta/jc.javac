@@ -85,8 +85,8 @@ public class TerreController extends Component {
         long codekey = CodificKey((int) (x + mypos.x), (int) (z + mypos.z));
         HeightMap.put(codekey, y + mypos.y);
         topFace(x, y, z, matriz);
-        generationlog(x, y, z);
-        if (matriz != 1) para =1;
+        modela.generationlog(tama, mypos, myObject, x, y, z);
+        if (matriz != 1) para = 1;
       } 
     }
     if (para == 1) WaterCriate();
@@ -123,24 +123,6 @@ public class TerreController extends Component {
     Water gera = null;
     if (Obj.findComponent("water") != null) gera = Obj.findComponent("Water");
     if (gera != null) gera.WaterGera();
-  }
-
-  private void generationlog(float x, float y, float z) {
-    float worldx = x + mypos.x;
-    float worldz = z + mypos.z;
-    int chunkX = (int) myObject.getGlobalPosition().x;
-    int chunkZ = (int) myObject.getGlobalPosition().z;
-    if (worldx < chunkX || worldx >= chunkX + tama.width || worldx < chunkZ || worldz >= chunkZ + tama.width) return;
-    int space = Random.range(3, 5);
-    if (((int) worldx % space != 0) || ((int) worldz % space != 0)) return;
-    float addspaw = perlin.noise(worldx + tama.seed, worldz + tama.seed);
-    addspaw -= perlin.noise(worldx * 50f + tama.seed, worldz * 50f + tama.seed);
-    if (addspaw >= tama.valuelog && y > tama.waterlevel + tama.heightscale) {
-      int quemspaw = Random.range(0, tama.trees.size() - 1);
-      Vector3 positobj = new Vector3(worldx, y + mypos.y, worldz) - myObject.getGlobalPosition();
-      SpatialObject log = myObject.instantiate(tama.trees.get(quemspaw), positobj);
-      log.setParent(myObject);
-    }
   }
 
   public float getHeight(float x, float z) {
