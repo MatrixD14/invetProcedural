@@ -13,7 +13,7 @@ public class chunkgen extends Component {
 
   @Hide public float waterlevel = .5f;
   @Hide public int chunks = 4, width = 16, seed;
-  public float scale, heightscale, valuelog;
+  public float heightscale, valuelog;
   public MaterialFile TerrMate, WaterMate;
   @Hide public chunkgen.object object;
   public ObjectFile[] trees = new ObjectFile[1];
@@ -21,19 +21,26 @@ public class chunkgen extends Component {
   private int lastChuckX = Integer.MIN_VALUE, lastChuckZ = Integer.MIN_VALUE;
   private int myposxs, myposzs;
   public HashMap<Long, SpatialObject> chunck = new HashMap<Long, SpatialObject>();
-  public Queue<Long> process = new ArrayDeque<Long>();
+  private float time = 0, timechunk = 0;
+  private int gerax, geraz, startx, startz, endx, endz;
+  private boolean gerado = false;
 
   @Override
   void start() {
     object = new chunkgen.object();
     seed = Random.range(0, 500);
-  }
+    spawobjT();
+    processotime(16 * 16);
+  } 
 
   @Override
   void repeat() {
     posplayermy();
-    spawobjT();
-    processaChuck(1);
+    if ((timechunk += Math.bySecond()) > 2f) {
+      spawobjT();
+      timechunk = 0;
+    }
+    processotime(4);
     removeChunck();
   }
 
@@ -47,27 +54,38 @@ public class chunkgen extends Component {
     if (myposxs == lastChuckX && myposzs == lastChuckZ) return;
     lastChuckX = myposxs;
     lastChuckZ = myposzs;
-    for (int x = (-chunks); x < (chunks); x++) {
-      for (int z = (-chunks); z < (chunks); z++) {
-        int px = x + myposxs;
-        int pz = z + myposzs;
-        long poskey = CodificKey(px, pz);
-        if (chunck.containsKey(poskey)) continue;
-        process.add(poskey);
-      }
-    } 
+
+    startx = -chunks;
+    startz = -chunks;
+    endx = chunks;
+    endz = chunks;
+
+    gerax = startx;
+    geraz = startz;
+    gerado = true;
   }
 
-  private void processaChuck(int quant) {
-    if (process.isEmpty()) return;
-    for (int i = quant; i >0; i--) {
-      long poss = process.remove();
-      int px = (int) DescodificKeyX(poss);
-      int pz = (int) DescodificKeyZ(poss);
+  private void processotime(int timeDaley) {
+    if (!gerado) return;
+    int gerandor = 0;
+    while (gerandor < timeDaley) {
+      if (gerax >= endx) {
+        gerax = startx;
+        geraz++;
+        if (geraz >= endz) {
+          gerado = false;
+          break;
+        }
+      }
+      int px = gerax + myposxs;
+      int pz = geraz + myposzs;
       long poskey = CodificKey(px, pz);
-      if (chunck.containsKey(poskey)) continue;
-      SpatialObject TerrObj = object.TerrCriate(px * width, pz * width);
-      if (TerrObj != null && TerrObj.exists()) chunck.put(poskey, TerrObj);
+      if (!chunck.containsKey(poskey)) {
+        SpatialObject TerrObj = object.TerrCriate(px * width, pz * width);
+        if (TerrObj != null && TerrObj.exists()) chunck.put(poskey, TerrObj);
+      }
+      gerax++;
+      gerandor++;
     }
   }
 
@@ -79,9 +97,10 @@ public class chunkgen extends Component {
       int posChunckZ = DescodificKeyZ(entregrar.getKey());
       int dX = Math.abs(posChunckX - myposxs);
       int dZ = Math.abs(posChunckZ - myposzs);
-      if (dX > (chunks) || dZ > (chunks)) {
+      if ((time += Math.bySecond()) > 3f && (dX > (chunks) || dZ > (chunks))) {
         entregrar.getValue().destroy();
         item.remove();
+        time = 0;
       }
     }
   }
