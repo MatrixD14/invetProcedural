@@ -16,7 +16,7 @@ public class chunkgen extends Component {
   public float scale, heightscale, valuelog;
   public MaterialFile TerrMate, WaterMate;
   @Hide public chunkgen.object object;
-  public List<ObjectFile> trees = new ArrayList<ObjectFile>();
+  public ObjectFile[] trees = new ObjectFile[1];
   private Vector3 myposGlobal;
   private int lastChuckX = Integer.MIN_VALUE, lastChuckZ = Integer.MIN_VALUE;
   private int myposxs, myposzs;
