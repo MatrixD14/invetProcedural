@@ -8,13 +8,6 @@ public class malha {
     data.UvMapCount += 1;
   }
 
-  public void WaterSimul(chunkSimul data) {
-    data.VertecesWaterCount += 1;
-    data.NormalWaterCount += 1;
-    data.TrianWaterCount += 6;
-    data.UvMapWaterCount += 1;
-  }
-
   public void trianguloN(int value, IntBuffer triang) {
     int verts = 0;
     for (int z = 0; z < value; z++) {
@@ -57,9 +50,9 @@ public class malha {
     float addspaw = perlin.noise(worldx + tama.seed, worldz + tama.seed);
     addspaw -= perlin.noise(worldx * 50f + tama.seed, worldz * 50f + tama.seed);
     if (addspaw >= tama.valuelog && y > tama.waterlevel + tama.heightscale) {
-      int quemspaw = Random.range(0, tama.trees.size() - 1);
+      int quemspaw = Random.range(0, tama.trees.length - 1);
       Vector3 positobj = new Vector3(worldx, y + mypos.y, worldz) - obj.getGlobalPosition();
-      SpatialObject log = obj.instantiate(tama.trees.get(quemspaw), positobj);
+      SpatialObject log = obj.instantiate(tama.trees[quemspaw], positobj);
       log.setParent(obj);
     } 
   }
