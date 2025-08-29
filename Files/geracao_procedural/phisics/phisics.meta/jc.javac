@@ -61,9 +61,9 @@ public class phisics extends Component {
   public TerreController getCachTerreno(float x, float z) {
     chunkgen chunck = (chunkgen) myObject.findComponent("chunkgen");
     if (chunck == null) return null;
-
-    int coodX = (int) Math.floor(x / chunck.width);
-    int coodZ = (int) Math.floor(z / chunck.width);
+    int W = chunck.width;
+    int coodX = (int) Math.floor(x / W);
+    int coodZ = (int) Math.floor(z / W);
     if (correntChunck == null || coodX != correntX || coodZ != correntZ) {
 
       long codekey = chunck.CodificKey(coodX, coodZ);
