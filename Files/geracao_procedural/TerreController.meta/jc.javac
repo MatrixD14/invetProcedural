@@ -17,7 +17,7 @@ public class TerreController extends Component {
     TerrModelo = myObject.findComponent("modelrenderer");
 
     reload();
-  }
+  } 
 
   private void myposblock() {
     mypos = myObject.position;
@@ -84,7 +84,7 @@ public class TerreController extends Component {
         topFace(x, y, z, matriz);
         modela.generationlog(tama, mypos, myObject, x, y, z);
         if (matriz != 1) para = 1;
-      } 
+      }
     }
     if (para == 1) WaterCriate();
 
