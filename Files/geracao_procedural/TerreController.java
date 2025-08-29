@@ -10,14 +10,16 @@ public class TerreController extends Component {
   private OH2LevelIntArray block = null;
   private OH2LevelFloatArray heigth = null;
   private malha modela = new malha();
+  // private Collider c;
 
   void start() {
     if (!myObject.exists()) return;
     tama = WorldController.findObject("player").findComponent("chunkgen");
     TerrModelo = myObject.findComponent("modelrenderer");
+    // c = myObject.findComponent("collider");
 
     reload();
-  } 
+  }
 
   private void myposblock() {
     mypos = myObject.position;
@@ -60,7 +62,7 @@ public class TerreController extends Component {
 
   private void createBuffer() {
     chunkSimul data = new chunkSimul();
-    boolean offon = true;
+    boolean offon = false;
     data.generat(tama.width, block, heigth, modela);
     TerrVertices = BufferUtils.createVector3Buffer(data.VertecesCount);
     TerrNormal = BufferUtils.createVector3Buffer(data.NormalCount);
@@ -72,13 +74,14 @@ public class TerreController extends Component {
     TerrUVs.setVboEnabled(true);
   }
 
-  private void generat() {
+  /* private void generat() {
     int W = tama.width;
     int para = 0;
     for (int z = 0; z <= W; z++) {
       for (int x = 0; x <= W; x++) {
-        int matriz = block.get(z, x);
         float y = heigth.get(z, x);
+        int matriz = block.get(z, x);
+        if (matriz < 0) continue;
         long codekey = CodificKey((int) (x + mypos.x), (int) (z + mypos.z));
         HeightMap.put(codekey, y + mypos.y);
         topFace(x, y, z, matriz);
@@ -93,6 +96,31 @@ public class TerreController extends Component {
     TerrTriangles.rewind();
     TerrTriangles.get(TrianConvert);
     TerrVertex = modela.meshupN(false, TerrModelo, tama.TerrMate, TrianConvert, TerrVertices, TerrNormal, TerrUVs);
+  } */
+
+  private void generat() {
+    int W = tama.width;
+    int para = 0;
+    for (int z = 0; z <= W ; z++) {
+      for (int x = 0; x <= W; x++) {
+        float y = heigth.get(z, x);
+        int matriz = block.get(z, x);
+        if (matriz < 0) continue;
+        long codekey = CodificKey((int) (x + mypos.x), (int) (z + mypos.z));
+        HeightMap.put(codekey, y + mypos.y);
+        topFace(x, y, z, matriz);
+        modela.generationlog(tama, mypos, myObject, x, y, z);
+        if (matriz != 1) para = 1;
+      } 
+    }
+    if (para == 1) WaterCriate();
+
+    modela.trianguloN(W, TerrTriangles);
+    int[] TrianConvert = new int[TerrTriangles.position()];
+    TerrTriangles.rewind();
+    TerrTriangles.get(TrianConvert);
+    TerrVertex = modela.meshupN(false, TerrModelo, tama.TerrMate, TrianConvert, TerrVertices, TerrNormal, TerrUVs);
+    // c.setVertex(TerrVertex);
   }
 
   private void topFace(int x, float y, int z, int typeblock) {
