@@ -1,6 +1,6 @@
 public class Water extends Component {
   private ModelRenderer WaterModelo;
-  private chunkgen tama = new chunkgen();
+  private chunkgen tama;
   void start() {
     if (!myObject.exists()) return;
     tama = WorldController.findObject("player").findComponent("chunkgen");
