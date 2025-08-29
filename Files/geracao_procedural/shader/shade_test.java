@@ -1,38 +1,29 @@
 package JAVARuntime;
-
-// Useful imports
 import java.util.*;
 
-/** @Author */
 public class test extends MaterialShader {
   @Override
   public String getShaderName() {
-    return "CustomShaders/test";
+    return "CustomShaders/Simple";
   }
 
   @Override
   public float getMinimalSupportedOGL() {
     return MaterialShader.OGL3;
   }
-
-  @Order(idx = -1)
   public Texture t;
-
-  @Order(idx = 0)
-  public Color cor = new Color(255, 255, 255);
+  public Color cor = null;
 
   private Shader shade;
-  @Order(idx = 1)
-  public Vector2 mapUV = new Vector2(1, 1), tile = new Vector2(0, 0);
 
   @Override
   void start() {
+    if(shade !=null)return;
+    cor= new Color();
     Shader.Builder b = new Shader.Builder();
     b.createProgram();
-    VertexShader vert = VertexShader.loadFile(this, "test");
-    b.setVertexCode(vert);
-    FragmentShader fra = FragmentShader.loadFile(this, "test");
-    b.setFragmentCode(fra);
+    b.setVertexCode(VertexShader.loadFile(this, "test")); 
+    b.setFragmentCode(FragmentShader.loadFile(this, "test"));
     b.compileVertex();
     b.compileFragment();
     shade = b.create();
@@ -40,6 +31,7 @@ public class test extends MaterialShader {
 
   @Override
   void render(OGLES ogles, Camera camera, MSRenderData renderData) {
+    if(shade == null)return;
     OGLES3 ogl = (OGLES3) ogles;
     ogl.withShader(shade);
     ogl.setIgnoreAttributeException(true);
@@ -49,18 +41,18 @@ public class test extends MaterialShader {
 
     ogl.uniformColor("diffuse", cor);
     ogl.uniformTexture("albedo", t != null ? t : Texture.white());
-    ogl.uniformVector2("mapuv", mapUV);
-    ogl.uniformVector2("o_tile", tile);
-
+    RenderableVertex rvert;
+    RenderableObject rObj;
+    Vertex vertex;
     for (int i = 0; i < renderData.vertexCount(); i++) {
-      RenderableVertex rvert = renderData.RenderableVertexAt(i);
-      Vertex vertex = rvert.vertex;
-
+       rvert = renderData.RenderableVertexAt(i);
+       vertex = rvert.vertex;
+      
       if (vertex.getVerticesBuffer() != null) ogl.attributeVector3("position", vertex.getVerticesBuffer());
       if (vertex.getUVsBuffer() != null) ogl.attributeVector2("texCoord", vertex.getUVsBuffer());
-
+      
       for (int j = 0; j < rvert.objectCount(); j++) {
-        RenderableObject rObj = rvert.objectAt(j);
+         rObj = rvert.objectAt(j);
         if (!rObj.isVisibleByCamera()) continue;
         if (rObj.getRenderMatrix() != null) ogl.uniformMatrix4("modelMatrix", rObj.getRenderMatrix());
         ogl.drawTriangles(vertex.getTrianglesBuffer());
