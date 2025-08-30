@@ -1,11 +1,12 @@
 public class Water extends Component {
-  private ModelRenderer WaterModelo;
-  private chunkgen tama;
+  private ModelRenderer WaterModelo = null;
+  private chunkgen tama = null;
+
   void start() {
     if (!myObject.exists()) return;
     tama = WorldController.findObject("player").findComponent("chunkgen");
     WaterModelo = myObject.findComponent("modelrenderer");
-  }
+  } 
 
   public void WaterGera() {
     start();
@@ -16,7 +17,7 @@ public class Water extends Component {
     float[] WaterNormal = new float[] {0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0};
     float[] WaterUV = new float[] {0, 0, 0, 1, 1, 0, 1, 1};
     int[] WaterTriangle = new int[] {0, 1, 2, 2, 1, 3};
-    
+
     WaterVertex.setVertices(WaterVertices);
     WaterVertex.setNormals(WaterNormal);
     WaterVertex.setUVs(WaterUV);
@@ -29,5 +30,5 @@ public class Water extends Component {
 
     if (WaterVertex != null) WaterModelo.setVertex(WaterVertex);
     WaterModelo.setCastShadowEnabled(false);
-  } 
+  }
 }
