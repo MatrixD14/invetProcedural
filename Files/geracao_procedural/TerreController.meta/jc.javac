@@ -10,7 +10,7 @@ public class TerreController extends Component {
   private OH2LevelIntArray block = null;
   private OH2LevelFloatArray heigth = null;
   private malha modela = new malha();
-  // private Collider c;
+  // private Collider c;  
 
   void start() {
     if (!myObject.exists()) return;
@@ -62,7 +62,7 @@ public class TerreController extends Component {
 
   private void createBuffer() {
     chunkSimul data = new chunkSimul();
-    boolean offon = false;
+    boolean offon = true;
     data.generat(tama.width, block, heigth, modela);
     TerrVertices = BufferUtils.createVector3Buffer(data.VertecesCount);
     TerrNormal = BufferUtils.createVector3Buffer(data.NormalCount);
