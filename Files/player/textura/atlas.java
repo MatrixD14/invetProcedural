@@ -14,13 +14,13 @@ public class atlas extends Component {
   }
 
   public Texture getSpait() {
-    if (ui == null) return null;
+    if (ui == null) return Texture.empty();
     if (Spait == null) Spait = Atlas();
     return Spait;
   }
 
   public Texture Atlas() {
-    if (ui == null) return null;
+    if (ui == null) return Texture.empty();
     Texture mapSprite = new Texture(largura, altura, true);
     int spaitx = largura * MapSpriteX;
     int spaity = altura * MapSpriteY;
