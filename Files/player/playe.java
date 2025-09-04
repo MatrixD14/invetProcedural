@@ -1,7 +1,6 @@
 public class playe extends Component {
   private Vector2 joy = null, slid = null, slidmouse = null;
   private float speedJ = 5f, camx, camy, camrota = 1f;
-  private SUIText fps;
   public WorldFile world, menu;
   private boolean playstop = false;
   private onoffinvent open;
@@ -9,7 +8,6 @@ public class playe extends Component {
 
   void start() {
     open = WorldController.findObject("player").findComponent("onoffinvent");
-    fps = WorldController.findObject("see").findComponent("suitext");
     fisica = myObject.findComponent("phisics");
     joy = Input.getAxisValue("joy");
     slid = Input.getAxisValue("slid");
@@ -17,6 +15,7 @@ public class playe extends Component {
   }
 
   void repeat() {
+    if (!playstop) GUI.drawText("FPS: " + (int) (1 / Time.deltatime()),(Screen.width()/2)+400,(Screen.height()/2)-350,30,12,8);
     if (open.onoff) {
       move(0, 0);
       return;
@@ -24,7 +23,6 @@ public class playe extends Component {
     sairgame();
     mudamudo();
     if (playstop) return;
-    fps.setText("FPS: " + (int) (1 / Time.deltatime()));
     if (key("w") || key("s") || key("a") || key("d")) {
       movekey();
     } else move(joy.x * speedJ, joy.y * speedJ);
@@ -59,9 +57,9 @@ public class playe extends Component {
   private void sairgame() {
     if (Input.isKeyDown("sair")) GameController.quit();
     if (Input.isKeyDown("playStop")) playstop = !playstop;
-    if (playstop) {
+    /*if (playstop) {
       Time.setTimeScale(0);
-    } else Time.setTimeScale(1);
+    } else Time.setTimeScale(1);*/
   }
 
   private void mudamudo() {
