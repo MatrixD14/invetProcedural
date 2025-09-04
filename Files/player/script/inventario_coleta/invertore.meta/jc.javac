@@ -6,12 +6,9 @@ public class invertore extends Component {
   @Hide public int[] slotAlmout;
   private SpatialObject button;
   private boolean onoff = false;
-  @Hide public SUIText infor;
   private float time = 0;
-
   void start() {
     button = WorldController.findObject("colete");
-    infor = WorldController.findObject("HUD").findComponent("suitext");
     slotAlmout = new int[cont.length];
     slot();
     for (int i = 0; i < cont.length; i++) {
@@ -42,17 +39,16 @@ public class invertore extends Component {
 
   private void laser() {
     SpatialObject camera = WorldController.findObject("see_player");
+    String text;
     LaserHit hit = new Laser().trace(camera.globalPosition, camera.forward(), 6f);
-    Console.log(hit !=null?hit.getObject().getName():"");
     if (hit == null || !"object".equals(hit.getObject().tag)) {
-      onoff = false;
-      infor.setText("");
+      onoff = false;      
       return;
     }
     
     item objecthit = hit.getObject().findComponent("item");
-    String spaceTxt = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nclica em coleta ";
-    infor.setText(spaceTxt + objecthit.QuatItemGrup + objecthit.name + ", " + objecthit.typeDC + ": " + objecthit.value);
+    text = objecthit.QuatItemGrup + objecthit.name + ", " + objecthit.typeDC + ": " + objecthit.value;
+    GUI.drawText(text,(Screen.width()/2)-200,(Screen.height()/2)+160,30,12,8);
     onoff = true;
     if ((!Input.isKeyPressed("coleta") && !Input.keyboard.isKeyDown("e")) || time < 0.45f) return;
     for (int i = 0; i < (items.size() - 7); i++) {
